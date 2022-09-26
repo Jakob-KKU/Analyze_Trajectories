@@ -25,6 +25,33 @@ function Init_Velocities!(df::DataFrame, k::Int, Δt::Float64, L)
 
 end
 
+function Init_Velocities!(df::DataFrame, k::Int, Δt::Float64)
+
+    n = nrow(df)
+    v_x = fill(0.0, n)
+    v_y = fill(0.0, n)
+
+    ids = unique(df[!, :ID])
+    index = 0
+
+
+    for i in ids
+
+        df_ = df[(df.ID .== i), :]
+        n_ = nrow(df_)
+
+        v_x[index+k+1:index+n_-k] = (df_[!, :x][2*k+1:end].-df_[!, :x][1:end-2*k])./(2*k*Δt)
+        v_y[index+k+1:index+n_-k] = (df_[!, :y][2*k+1:end].-df_[!, :y][1:end-2*k])./(2*k*Δt)
+
+        index += n_
+
+    end
+
+    df[!, :v_x] = v_x
+    df[!, :v_y] = v_y;
+
+end
+
 function Init_Global_Density!(df::DataFrame, L)
 
     n = nrow(df)
