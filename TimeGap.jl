@@ -96,3 +96,18 @@ function Min_TG(df_i, df_f)
     TG_min
 
 end
+
+function Min_TG_vC(df_i, df_f)
+
+    x_i = (df_i.x[1], df_i.y[1])
+    v_i = normalize((df_i.v_x[1], df_i.v_y[1]))
+
+    TG_min = 999.9
+
+    for row in eachrow(df_f)
+        TG_min = min(TG_min, TimeGap(x_i, (row.x, row.y),  v_i))
+    end
+
+    TG_min
+
+end

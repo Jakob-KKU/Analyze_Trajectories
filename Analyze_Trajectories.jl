@@ -5,7 +5,7 @@ include("./Intruder.jl")
 include("./Vectors.jl")
 include("./TTC.jl")
 include("./TimeGap.jl")
-
+include("./Pair_Distribution.jl")
 include("./Lane_Formation.jl")
 include("./Plot_Video.jl")
 
@@ -16,7 +16,7 @@ function Keep_only(Files, suff)
 
     for (i, f) in enumerate(Files)
 
-        if endswith(f, ".csv") == true
+        if endswith(f, suff) == true
             push!(Files_, f)
         end
     end

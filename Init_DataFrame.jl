@@ -119,3 +119,35 @@ function Init_Accelerations!(df, k, Δt)
     df[!, :a_x] = a_x
     df[!, :a_y] = a_y;
 end
+
+function Init_TG_TTC!(df::DataFrame)
+    #Init columns
+    df[!, :TTC] = fill(0.0, nrow(df))
+    df[!, :TG] = fill(0.0, nrow(df))
+
+    #group by frames
+    gdf = groupby(df, :Frame)
+
+    #Init TTC and TG
+    for df_f in gdf
+
+        TGs, TTCs = fill(0.0, nrow(df_f)), fill(0.0, nrow(df_f))
+        j = 1
+
+        for id in unique(df_f.ID)
+
+            df_f_i = df_f[df_f.ID .== id, :]
+            df_f_ = df_f[df_f.ID .!= id, :]
+
+            TGs[j] = Min_TG_vC(df_f_i, df_f_)
+            TTCs[j] = Min_TTC(df_f_i, df_f_)
+            j += 1
+
+        end
+
+        df_f.TG = TGs
+        df_f.TTC = TTCs
+
+    end
+
+end
