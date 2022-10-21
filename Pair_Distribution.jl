@@ -39,69 +39,162 @@ function Calc_Dist(x, x_bins::Vector, dx)
 
 end
 
-function Calc_All_Distances_SameFrames(df, Δfr = 1)
+function Num_of_Mutual_Dist(gdf, Δf)
+
+    len = 0
+
+    for df_f in gdf[1:Δf:end]
+
+        ids = length(unique(df_f.ID))
+
+        len+= Int(ids*(ids-1)/2)
+
+    end
+
+    len
+
+end
+
+function Add_Obs!(obs, df_i, df_j, fi, fj, line)
+
+    obs[line, 1:4] .= df_i.x[fi], df_i.y[fi], df_i.v_x[fi], df_i.v_y[fi]
+    obs[line, 5:8] .= df_j.x[fj], df_j.y[fj], df_j.v_x[fj], df_j.v_y[fj]
+    obs[line, 9] = d(df_i.x[fi], df_i.y[fi] , df_j.x[fj], df_j.y[fj])
+    obs[line, 10] = TTC((df_i.x[fi], df_i.y[fi]), (df_j.x[fj], df_j.y[fj]),
+        (df_i.v_x[fi], df_i.v_y[fi]), (df_j.v_x[fj], df_j.v_y[fj]))
+    obs[line, 11] = Rate_Of_Approach((df_i.x[fi], df_i.y[fi]), (df_j.x[fj], df_j.y[fj]),
+        (df_i.v_x[fi], df_i.v_y[fi]), (df_j.v_x[fj], df_j.v_y[fj]))
+
+end
+
+function Calc_DF_Interaction(df, Δf)
 
     gdf = groupby(df, :Frame)
+    N_val = Num_of_Mutual_Dist(gdf, Δf)
+    obs = Matrix{Float64}(undef, N_val, 11)
+    line = 1
 
-    d_ = Vector{Float64}()
+    for df_f in gdf[1:Δf:end]
 
-    for df_f in gdf[1:Δfr:end]
+        gdf_2 = groupby(df_f, :ID)
 
-        append!(d_, Calc_All_Distances_singleFrame(df_f))
+        for (i, df_i) in enumerate(gdf_2)
+
+            for df_j in gdf_2[i+1:end]
+
+                Add_Obs!(obs, df_i, df_j, 1, 1, line)
+                line += 1
+
+            end
+        end
 
     end
 
-    d_
+    DataFrame(x1 = obs[:, 1], y1 = obs[:, 2], v_x1 = obs[:, 3], v_y1 = obs[:, 4]
+                 ,x2 = obs[:, 5], y2 = obs[:, 6], v_x2 = obs[:, 7], v_y2 = obs[:, 8]
+                 , r = obs[:, 9], ttc = obs[:, 10], roa = obs[:, 11])
 
 end
 
-function Calc_All_Distances_singleFrame(df)
+function Calc_DF_Independent(df, Δf, N_val)
 
-    gdf = groupby(df, :ID)
-    ids = length(unique(df.ID))
+    gdf_id = groupby(df, :ID)
+    obs_ind = Matrix{Float64}(undef, N_val, 11)
+    line = 1
 
-    d_ = fill(0.0, Int(ids*(ids-1)/2))
-    ind = 1
+    while line < N_val
 
+        for df_i in gdf_id
 
-    for (i, df_i) in enumerate(gdf)
+            df_j = gdf_id[rand(1:length(gdf_id))]
 
-        for df_j in gdf[i+1:end]
+            if Intersection(df_i.Frame, df_j.Frame) == false
 
-            d_[ind] = d(df_i.x[1], df_i.y[1] , df_j.x[1], df_j.y[1])
-            ind += 1
+                fr_i, fr_j = rand(1:length(df_i.x)), rand(1:length(df_j.x))
+
+                Add_Obs!(obs_ind, df_i, df_j, fr_i, fr_j, line)
+
+                line = min(line + 1, N_val)
+
+            end
 
         end
     end
 
-    d_
+
+    DataFrame(x1 = obs_ind[:, 1], y1 = obs_ind[:, 2], v_x1 = obs_ind[:, 3], v_y1 = obs_ind[:, 4]
+                 ,x2 = obs_ind[:, 5], y2 = obs_ind[:, 6], v_x2 = obs_ind[:, 7], v_y2 = obs_ind[:, 8]
+                 , r = obs_ind[:, 9], ttc = obs_ind[:, 10], roa = obs_ind[:, 11])
 end
 
-function Calc_Distances_NotSameFrames(df, N=10000)
+function Add_Obs_1d!(obs, df_i, df_j, fi, fj, line)
 
-    d_ = fill(0.0, N)
+    obs[line, 1:4] .= df_i.x[fi], df_i.y[fi], df_i.v_x[fi], df_i.v_y[fi]
+    obs[line, 5:8] .= df_j.x[fj], df_j.y[fj], df_j.v_x[fj], df_j.v_y[fj]
+    obs[line, 9] = d(df_i.x[fi], df_j.x[fj])
+    obs[line, 10] = TTC(df_i.x[fi], df_j.x[fj], df_i.v_x[fi], df_j.v_x[fj])
+    obs[line, 11] = Rate_Of_Approach(df_i.x[fi], df_j.x[fj], df_i.v_x[fi], df_j.v_x[fj])
+    obs[line, 12] = min(TimeGap(df_i.x[fi], df_j.x[fj], df_i.v_x[fi]), TimeGap(df_j.x[fj], df_i.x[fi], df_j.v_x[fj]))
 
-    gdf = groupby(df, :ID)
 
-    ids = 1:length(unique(df.ID))
+end
 
-    for i in 1:N
+function Calc_DF_Interaction_1d(df, Δf)
 
-        id1, id2 = rand(ids), rand(ids)
+    gdf = groupby(df, :Frame)
+    N_val = Num_of_Mutual_Dist(gdf, Δf)
+    obs = Matrix{Float64}(undef, N_val, 12)
+    line = 1
 
-        while length(intersect(gdf[id1].Frame, gdf[id2].Frame)) > 0
-           id2 = rand(ids)
+    for df_f in gdf[1:Δf:end]
+
+        gdf_2 = groupby(df_f, :ID)
+
+        for (i, df_i) in enumerate(gdf_2)
+
+            for df_j in gdf_2[i+1:end]
+
+                Add_Obs_1d!(obs, df_i, df_j, 1, 1, line)
+                line += 1
+
+            end
         end
-
-        f1, f2 = rand(gdf[id1].Frame), rand(gdf[id2].Frame)
-
-        x1, y1 = gdf[id1][gdf[id1].Frame .== f1, :].x[1], gdf[id1][gdf[id1].Frame .== f1, :].y[1]
-        x2, y2 = gdf[id2][gdf[id2].Frame .== f2, :].x[1], gdf[id2][gdf[id2].Frame .== f2, :].y[1]
-
-        d_[i] = d(x1, y1, x2, y2)
 
     end
 
-    d_
+    DataFrame(x1 = obs[:, 1], y1 = obs[:, 2], v_x1 = obs[:, 3], v_y1 = obs[:, 4]
+                 ,x2 = obs[:, 5], y2 = obs[:, 6], v_x2 = obs[:, 7], v_y2 = obs[:, 8]
+                 , r = obs[:, 9], ttc = obs[:, 10], roa = obs[:, 11], tg = obs[:, 12])
 
+end
+
+function Calc_DF_Independent_1d(df, Δf, N_val)
+
+    gdf_id = groupby(df, :ID)
+    obs_ind = Matrix{Float64}(undef, N_val, 12)
+    line = 1
+
+    while line < N_val
+
+        for df_i in gdf_id
+
+            df_j = gdf_id[rand(1:length(gdf_id))]
+
+            if Intersection(df_i.Frame, df_j.Frame) == false
+
+                fr_i, fr_j = rand(1:length(df_i.x)), rand(1:length(df_j.x))
+
+                Add_Obs_1d!(obs_ind, df_i, df_j, fr_i, fr_j, line)
+
+                line = min(line + 1, N_val)
+
+            end
+
+        end
+    end
+
+
+    DataFrame(x1 = obs_ind[:, 1], y1 = obs_ind[:, 2], v_x1 = obs_ind[:, 3], v_y1 = obs_ind[:, 4]
+                 ,x2 = obs_ind[:, 5], y2 = obs_ind[:, 6], v_x2 = obs_ind[:, 7], v_y2 = obs_ind[:, 8]
+                 , r = obs_ind[:, 9], ttc = obs_ind[:, 10], roa = obs_ind[:, 11],  tg = obs_ind[:, 12])
 end

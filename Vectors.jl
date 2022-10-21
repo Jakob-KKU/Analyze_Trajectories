@@ -31,6 +31,7 @@ function d(a::NTuple{2, Float64}, b::NTuple{2, Float64}, system_size::NTuple{2, 
 
     return sqrt(dx^2 + dy^2)
 end
+d(a::Float64, b::Float64) = sqrt((a-b)^2)
 
 d(a::NTuple{2, Float64}, b::NTuple{2, Float64}) = sqrt((a[1]-b[1])^2+(a[2]-b[2])^2)
 e_(a::NTuple{2, Float64}, b::NTuple{2, Float64}) = (a.-b)./d(a, b)
@@ -52,3 +53,17 @@ end
 
 Base.abs(a, b) = sqrt(a^2+b^2)
 Base.abs(a::NTuple{2, Float64}) = sqrt(a[1]^2+a[2]^2)
+
+function Rate_Of_Approach(x_a::NTuple{2, Float64}, x_b::NTuple{2, Float64}, v_a::NTuple{2, Float64}, v_b::NTuple{2, Float64})
+
+    -1 .*(v_a .- v_b)⋅(x_a.-x_b)/d(x_a, x_b)
+
+end
+
+function Rate_Of_Approach(x_a::Float64, x_b::Float64, v_a::Float64, v_b::Float64)
+
+    -1*(v_a - v_b)*(x_a-x_b)/d(x_a, x_b)
+
+end
+
+Intersection(fr1, fr2) = fr1[1] > fr2[end] || fr2[1] > fr1[end] ? false : true
