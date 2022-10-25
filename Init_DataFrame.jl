@@ -1,3 +1,19 @@
+function Init_Velocities_FW!(df::DataFrame, Δt::Float64)
+
+    df[!, :v_x] = fill(0.0, nrow(df))
+    df[!, :v_y] = fill(0.0, nrow(df))
+
+    gdf = groupby(df, :ID)
+
+
+    for df_i in gdf
+
+        df_i.v_x[1:end-1] = (df_i.x[2:end].-df_i.x[1:end-1])./((df_i.Frame[2:end].-df_i.Frame[1:end-1])*Δt)
+        df_i.v_y[1:end-1] = (df_i.y[2:end].-df_i.y[1:end-1])./((df_i.Frame[2:end].-df_i.Frame[1:end-1])*Δt)
+
+    end
+end
+
 function Init_Velocities!(df::DataFrame, k::Int, Δt::Float64, L)
 
     n = nrow(df)

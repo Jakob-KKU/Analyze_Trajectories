@@ -67,3 +67,5 @@ function Rate_Of_Approach(x_a::Float64, x_b::Float64, v_a::Float64, v_b::Float64
 end
 
 Intersection(fr1, fr2) = fr1[1] > fr2[end] || fr2[1] > fr1[end] ? false : true
+
+ϕ(a::NTuple{2, Float64}, b::NTuple{2, Float64}) = acos(min(1.0,(a⋅b)/(abs(a)*abs(b))))

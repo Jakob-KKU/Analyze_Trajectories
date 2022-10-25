@@ -57,13 +57,19 @@ end
 
 function Add_Obs!(obs, df_i, df_j, fi, fj, line)
 
+    x_i = (df_i.x[fi], df_i.y[fi])
+    x_j = (df_j.x[fj], df_j.y[fj])
+    v_i = (df_i.v_x[fi], df_i.v_y[fi])
+    v_j = (df_j.v_x[fj], df_j.v_y[fj])
+
     obs[line, 1:4] .= df_i.x[fi], df_i.y[fi], df_i.v_x[fi], df_i.v_y[fi]
     obs[line, 5:8] .= df_j.x[fj], df_j.y[fj], df_j.v_x[fj], df_j.v_y[fj]
     obs[line, 9] = d(df_i.x[fi], df_i.y[fi] , df_j.x[fj], df_j.y[fj])
-    obs[line, 10] = TTC((df_i.x[fi], df_i.y[fi]), (df_j.x[fj], df_j.y[fj]),
-        (df_i.v_x[fi], df_i.v_y[fi]), (df_j.v_x[fj], df_j.v_y[fj]))
-    obs[line, 11] = Rate_Of_Approach((df_i.x[fi], df_i.y[fi]), (df_j.x[fj], df_j.y[fj]),
-        (df_i.v_x[fi], df_i.v_y[fi]), (df_j.v_x[fj], df_j.v_y[fj]))
+
+    obs[line, 10] = TTC(x_i, x_j, v_i, v_j)
+    obs[line, 11] = Rate_Of_Approach(x_i, x_j, v_i, v_j)
+    obs[line, 12] = ϕ(v_i, x_j .- x_i)
+    obs[line, 13] = ϕ(v_j, x_i .- x_j)
 
 end
 
@@ -71,7 +77,7 @@ function Calc_DF_Interaction(df, Δf)
 
     gdf = groupby(df, :Frame)
     N_val = Num_of_Mutual_Dist(gdf, Δf)
-    obs = Matrix{Float64}(undef, N_val, 11)
+    obs = Matrix{Float64}(undef, N_val, 13)
     line = 1
 
     for df_f in gdf[1:Δf:end]
@@ -91,8 +97,8 @@ function Calc_DF_Interaction(df, Δf)
     end
 
     DataFrame(x1 = obs[:, 1], y1 = obs[:, 2], v_x1 = obs[:, 3], v_y1 = obs[:, 4]
-                 ,x2 = obs[:, 5], y2 = obs[:, 6], v_x2 = obs[:, 7], v_y2 = obs[:, 8]
-                 , r = obs[:, 9], ttc = obs[:, 10], roa = obs[:, 11])
+                 , x2 = obs[:, 5], y2 = obs[:, 6], v_x2 = obs[:, 7], v_y2 = obs[:, 8]
+                 , r = obs[:, 9], ttc = obs[:, 10], roa = obs[:, 11], phi_1 = obs[:, 12], phi_2 = obs[:, 13])
 
 end
 
