@@ -68,4 +68,77 @@ end
 
 Intersection(fr1, fr2) = fr1[1] > fr2[end] || fr2[1] > fr1[end] ? false : true
 
-ϕ(a::NTuple{2, Float64}, b::NTuple{2, Float64}) = acos(min(1.0,(a⋅b)/(abs(a)*abs(b))))
+ϕ(a::NTuple{2, Float64}, b::NTuple{2, Float64}) = acos(clamp((a⋅b)/(abs(a)*abs(b)),-1.0, 1.0))
+
+function Min_R(df_i, df_f)
+
+    x_i = (df_i.x[1], df_i.y[1])
+    r_min = 99999.9
+
+    for row in eachrow(df_f)
+        x_j = (row.x, row.y)
+        r_min = min(r_min, d(x_i, x_j))
+    end
+
+    r_min
+
+end
+
+function Min_R_1D(df_i, df_f)
+
+    x_i = df_i.x[1]
+    r_min = 99999.9
+
+    for row in eachrow(df_f)
+        x_j = row.x
+        r_min = min(r_min, d(x_i, x_j))
+    end
+
+    r_min
+
+end
+
+IN(r::Vector, r_soc, dia) = [IN(r_i, r_soc, dia) for r_i in r]
+
+IN(r::Float64, r_soc, dia) = (r_soc - dia)/(r-dia)
+
+AV(ttc::Vector, T) = T./ttc
+
+AV(ttc::Float64, T) = T/ttc
+
+function ρ_Global(df)
+
+    A = (maximum(df.x)-minimum(df.x))*(maximum(df.y)-minimum(df.y))
+
+    rho = 0.0
+
+    gdf = groupby(df, :Frame)
+
+    for df_ in gdf
+
+    rho += length(df_.ID)
+
+    end
+
+    rho = rho/(A*length(gdf))
+
+end
+
+function Min_R_ϕ(df_i, df_f, ϕ_)
+
+    x_i = (df_i.x[1], df_i.y[1])
+    v_i = (df_i.v_x[1], df_i.v_y[1])
+    r_min = 99999.9
+
+    for row in eachrow(df_f)
+
+        x_j = (row.x, row.y)
+
+        if ϕ(v_i, x_j .- x_i) > ϕ_
+            r_min = min(r_min, d(x_i, x_j))
+        end
+    end
+
+    r_min
+
+end

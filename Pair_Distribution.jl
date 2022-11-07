@@ -39,6 +39,48 @@ function Calc_Dist(x, x_bins::Vector, dx)
 
 end
 
+function Calc_PD(x, x_scrambled ,x_bins::Vector, dx)
+
+    x_min = minimum(x_bins)
+    x_max = maximum(x_bins)
+
+
+    pd = fill(0.0, length(x_bins))
+    p_x = fill(0.0, length(x_bins))
+    p_xs = fill(0.0, length(x_bins))
+
+    ct = 0
+    ct_s = 0
+
+    for x_i in x
+
+        if x_min < x_i < x_max+dx
+
+            p_x[Int(floor((x_i-x_min)/dx))+1] += 1
+            ct += 1
+
+        end
+
+    end
+
+    for x_i in x_scrambled
+
+        if x_min < x_i < x_max+dx
+
+            p_xs[Int(floor((x_i-x_min)/dx))+1] += 1
+            ct_s += 1
+
+        end
+
+    end
+
+    #(p_x) ./ (p_xs)
+    #(p_x./ct) ./ (p_xs./ct_s)
+    (p_x./length(x)) ./ (p_xs./length(x_scrambled))
+
+
+end
+
 function Num_of_Mutual_Dist(gdf, Δf)
 
     len = 0
@@ -102,37 +144,6 @@ function Calc_DF_Interaction(df, Δf)
 
 end
 
-function Calc_DF_Independent(df, Δf, N_val)
-
-    gdf_id = groupby(df, :ID)
-    obs_ind = Matrix{Float64}(undef, N_val, 11)
-    line = 1
-
-    while line < N_val
-
-        for df_i in gdf_id
-
-            df_j = gdf_id[rand(1:length(gdf_id))]
-
-            if Intersection(df_i.Frame, df_j.Frame) == false
-
-                fr_i, fr_j = rand(1:length(df_i.x)), rand(1:length(df_j.x))
-
-                Add_Obs!(obs_ind, df_i, df_j, fr_i, fr_j, line)
-
-                line = min(line + 1, N_val)
-
-            end
-
-        end
-    end
-
-
-    DataFrame(x1 = obs_ind[:, 1], y1 = obs_ind[:, 2], v_x1 = obs_ind[:, 3], v_y1 = obs_ind[:, 4]
-                 ,x2 = obs_ind[:, 5], y2 = obs_ind[:, 6], v_x2 = obs_ind[:, 7], v_y2 = obs_ind[:, 8]
-                 , r = obs_ind[:, 9], ttc = obs_ind[:, 10], roa = obs_ind[:, 11])
-end
-
 function Add_Obs_1d!(obs, df_i, df_j, fi, fj, line)
 
     obs[line, 1:4] .= df_i.x[fi], df_i.y[fi], df_i.v_x[fi], df_i.v_y[fi]
@@ -174,33 +185,14 @@ function Calc_DF_Interaction_1d(df, Δf)
 
 end
 
-function Calc_DF_Independent_1d(df, Δf, N_val)
+function Scramble_Time!(df)
 
-    gdf_id = groupby(df, :ID)
-    obs_ind = Matrix{Float64}(undef, N_val, 12)
-    line = 1
+    gdf = groupby(df, :ID)
 
-    while line < N_val
+    for i in 1:length(gdf)
 
-        for df_i in gdf_id
+        shuffle!(gdf[i].Frame)
 
-            df_j = gdf_id[rand(1:length(gdf_id))]
-
-            if Intersection(df_i.Frame, df_j.Frame) == false
-
-                fr_i, fr_j = rand(1:length(df_i.x)), rand(1:length(df_j.x))
-
-                Add_Obs_1d!(obs_ind, df_i, df_j, fr_i, fr_j, line)
-
-                line = min(line + 1, N_val)
-
-            end
-
-        end
     end
 
-
-    DataFrame(x1 = obs_ind[:, 1], y1 = obs_ind[:, 2], v_x1 = obs_ind[:, 3], v_y1 = obs_ind[:, 4]
-                 ,x2 = obs_ind[:, 5], y2 = obs_ind[:, 6], v_x2 = obs_ind[:, 7], v_y2 = obs_ind[:, 8]
-                 , r = obs_ind[:, 9], ttc = obs_ind[:, 10], roa = obs_ind[:, 11],  tg = obs_ind[:, 12])
 end

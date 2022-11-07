@@ -136,7 +136,65 @@ function Init_Accelerations!(df, k, Δt)
     df[!, :a_y] = a_y;
 end
 
-function Init_TG_TTC!(df::DataFrame)
+function Init_TTC!(df::DataFrame,)
+    #Init columns
+    df[!, :TTC] = fill(0.0, nrow(df))
+
+    #group by frames
+    gdf = groupby(df, :Frame)
+
+    #Init TTC and TG
+    for df_f in gdf
+
+        TTCs = fill(0.0, nrow(df_f))
+        j = 1
+
+        for id in unique(df_f.ID)
+
+            df_f_i = df_f[df_f.ID .== id, :]
+            df_f_ = df_f[df_f.ID .!= id, :]
+
+            TTCs[j] = Min_TTC(df_f_i, df_f_)
+            j += 1
+
+        end
+
+        df_f.TTC = TTCs
+
+    end
+
+end
+
+function Init_Min_R!(df::DataFrame)
+    #Init columns
+    df[!, :r] = fill(0.0, nrow(df))
+
+    #group by frames
+    gdf = groupby(df, :Frame)
+
+    #Init TTC and TG
+    for df_f in gdf
+
+        rs = fill(0.0, nrow(df_f))
+        j = 1
+
+        for id in unique(df_f.ID)
+
+            df_f_i = df_f[df_f.ID .== id, :]
+            df_f_ = df_f[df_f.ID .!= id, :]
+
+            rs[j] = Min_R(df_f_i, df_f_)
+            j += 1
+
+        end
+
+        df_f.r = rs
+
+    end
+
+end
+
+function Init_TG_TTC!(df::DataFrame, l)
     #Init columns
     df[!, :TTC] = fill(0.0, nrow(df))
     df[!, :TG] = fill(0.0, nrow(df))
@@ -155,14 +213,120 @@ function Init_TG_TTC!(df::DataFrame)
             df_f_i = df_f[df_f.ID .== id, :]
             df_f_ = df_f[df_f.ID .!= id, :]
 
-            TGs[j] = Min_TG_vC(df_f_i, df_f_)
-            TTCs[j] = Min_TTC(df_f_i, df_f_)
+            TGs[j] = Min_TG_vC(df_f_i, df_f_, l)
+            TTCs[j] = Min_TTC(df_f_i, df_f_, l)
             j += 1
 
         end
 
         df_f.TG = TGs
         df_f.TTC = TTCs
+
+    end
+
+end
+
+function Init_Min_R_1D!(df::DataFrame)
+    #Init columns
+    df[!, :r] = fill(0.0, nrow(df))
+
+    #group by frames
+    gdf = groupby(df, :Frame)
+
+    #Init TTC and TG
+    for df_f in gdf
+
+        rs = fill(0.0, nrow(df_f))
+        j = 1
+
+        for id in unique(df_f.ID)
+
+            df_f_i = df_f[df_f.ID .== id, :]
+            df_f_ = df_f[df_f.ID .!= id, :]
+
+            rs[j] = Min_R_1D(df_f_i, df_f_)
+            j += 1
+
+        end
+
+        df_f.r = rs
+
+    end
+
+end
+
+function Init_TG_TTC_1D!(df::DataFrame, l)
+    #Init columns
+    df[!, :TTC] = fill(0.0, nrow(df))
+    df[!, :TG] = fill(0.0, nrow(df))
+
+    #group by frames
+    gdf = groupby(df, :Frame)
+
+    #Init TTC and TG
+    for df_f in gdf
+
+        TGs, TTCs = fill(0.0, nrow(df_f)), fill(0.0, nrow(df_f))
+        j = 1
+
+        for id in unique(df_f.ID)
+
+            df_f_i = df_f[df_f.ID .== id, :]
+            df_f_ = df_f[df_f.ID .!= id, :]
+
+            TGs[j] = Min_TG_1D_vC(df_f_i, df_f_, l)
+            TTCs[j] = Min_TTC_1D(df_f_i, df_f_, l)
+            j += 1
+
+        end
+
+        df_f.TG = TGs
+        df_f.TTC = TTCs
+
+    end
+
+end
+
+function Reset_Undef(x::Vector)
+
+    for (i, x_) in enumerate(x)
+
+        if x_ == 999.9
+
+            x[i] = 9999999999999999999.9
+
+        end
+
+    end
+
+    x
+
+end
+
+function Init_Min_R_F!(df::DataFrame, ϕ_)
+    #Init columns
+    df[!, :r_F] = fill(0.0, nrow(df))
+
+    #group by frames
+    gdf = groupby(df, :Frame)
+
+    #Init TTC and TG
+    for df_f in gdf
+
+        rs = fill(0.0, nrow(df_f))
+        j = 1
+
+        for id in unique(df_f.ID)
+
+            df_f_i = df_f[df_f.ID .== id, :]
+            df_f_ = df_f[df_f.ID .!= id, :]
+
+            rs[j] = Min_R_ϕ(df_f_i, df_f_, ϕ_)
+            j += 1
+
+        end
+
+        df_f.r_F = rs
 
     end
 
