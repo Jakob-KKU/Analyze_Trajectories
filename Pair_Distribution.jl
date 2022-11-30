@@ -191,6 +191,8 @@ function Scramble_Time!(df)
 
     for i in 1:length(gdf)
 
+        #gdf[i].Frame = [gdf[i].Frame[x] for x in rand(1:length(gdf[i].Frame), length(gdf[i].Frame))]
+
         shuffle!(gdf[i].Frame)
 
     end
