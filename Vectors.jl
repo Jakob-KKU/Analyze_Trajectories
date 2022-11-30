@@ -68,6 +68,36 @@ end
 
 Intersection(fr1, fr2) = fr1[1] > fr2[end] || fr2[1] > fr1[end] ? false : true
 
+function Intersection_Interval(fr1, fr2)
+
+    if Intersection(fr1, fr2) == true
+
+        max(fr1[1], fr2[1]), min(fr2[end], fr1[end])
+
+    else
+
+
+        false, false
+
+    end
+
+end
+
+
+function Intersection_Length(fr1, fr2)
+
+    if Intersection(fr1, fr2) == true
+
+        min(fr2[end], fr1[end]) - max(fr1[1], fr2[1])
+
+    else
+
+        0
+
+    end
+
+end
+
 ϕ(a::NTuple{2, Float64}, b::NTuple{2, Float64}) = acos(clamp((a⋅b)/(abs(a)*abs(b)),-1.0, 1.0))
 
 function Min_R(df_i, df_f)

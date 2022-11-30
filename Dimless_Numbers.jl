@@ -13,8 +13,9 @@ function Calc_IN_AV(path, Files, r_min, t_min, t_max, r_soc, dia, T)
 
         #create Data Frame and rename Columns
         df = DataFrame(data)
+        INs = IN_Add(df, r_soc, dia)
 
-        INs = IN(df[df.r_F .> r_min, :].r_F, r_soc, dia)
+        #INs = IN(df[df.r_F .> r_min, :].r_F, r_soc, dia)
         #INs = 1 ./df[t_max .> df.TG .> t_min, :].TG
         #r_Front = df[t_max .> df.TG .> t_min, :].TG .+ dia
         #INs = IN(r_Front, r_soc, dia)
@@ -48,7 +49,9 @@ function Calc_IN_AV_1D(path, Files, r_min, t_min, t_max, r_soc, dia, T)
         #create Data Frame and rename Columns
         df = DataFrame(data)
 
-        INs = IN(df[df.r .> r_min, :].r, r_soc, dia)
+        #INs = IN(df[df.r .> r_min, :].r, r_soc, dia)
+        INs = IN_Add_1d(df, r_soc, dia)
+
         #INs = 1 ./df[t_max .> df.TG .> t_min, :].TG
         #r_Front = df[t_max .> df.TG .> t_min, :].TG .+ dia
         #INs = IN(r_Front, r_soc, dia)
@@ -63,5 +66,107 @@ function Calc_IN_AV_1D(path, Files, r_min, t_min, t_max, r_soc, dia, T)
     end
 
     IN_ ,σ_IN_, AV_, σ_AV_, rho_
+
+end
+
+IN(r::Vector, r_soc, dia) = [IN(r_i, r_soc, dia) for r_i in r]
+
+IN(r::Float64, r_soc, dia) = ((r_soc - dia)/(r-dia))^2
+
+AV(ttc::Vector, T) = T./ttc
+
+AV(ttc::Float64, T) = T/ttc
+
+function IN_Add(x, df, r_soc, dia)
+
+    in_ = 0.0
+
+    for i in 1:length(df.x)
+
+        d_ = d(x, (df.x[i], df.y[i]))
+
+        if d_ > dia + 0.01
+
+            in_ += IN(d_, r_soc, dia)
+
+        end
+
+    end
+
+    in_
+
+end
+
+
+function IN_Add(df, r_soc, dia)
+    ins = fill(0.0, nrow(df))
+    index = 1
+
+    gdf = groupby(df, :Frame)
+
+    for df_ in gdf
+
+        gdf_ = groupby(df_, :ID)
+
+        for df_2 in gdf_
+
+            x = (df_2.x[1], df_2.y[1])
+
+            ins[index] = IN_Add(x, df_, r_soc, dia)
+            index += 1
+
+
+        end
+
+    end
+
+    ins
+
+end
+
+function IN_1d(x, df, r_soc, dia)
+
+    in_ = 0.0
+
+    for i in 1:length(df.x)
+
+        d_ = d(x, df.x[i])
+
+        if d_ > dia + 0.01
+
+            in_ += IN(d_, r_soc, dia)
+
+        end
+
+    end
+
+    in_
+
+end
+
+
+function IN_Add_1d(df, r_soc, dia)
+    ins = fill(0.0, nrow(df))
+    index = 1
+
+    gdf = groupby(df, :Frame)
+
+    for df_ in gdf
+
+        gdf_ = groupby(df_, :ID)
+
+        for df_2 in gdf_
+
+            x = df_2.x[1]
+
+            ins[index] = IN_1d(x, df_, r_soc, dia)
+            index += 1
+
+
+        end
+
+    end
+
+    ins
 
 end
