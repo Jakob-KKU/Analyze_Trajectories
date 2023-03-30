@@ -5,7 +5,7 @@ function TTC(x_a::NTuple{2, Float64}, x_b::NTuple{2, Float64}, v_a::NTuple{2, Fl
     A = (cos_α^2-1)*d(x_a,x_b)^2+l(l_a, l_b)^2
 
     if A < 0.0 || -cos_α*d(x_a,x_b)-sqrt(A) < 0.0 || abs(v_a .- v_b) == 0.0
-        ttc_min = 99999.9
+        99999.9
     else
         (-cos_α*d(x_a,x_b)-sqrt(A))/abs(v_a .- v_b)
     end
@@ -16,8 +16,8 @@ function TTC(x1, y1, x2, y2, vx1, vy1, vx2, vy2, l_a = 0.3, l_b = 0.3)
     cos_α = e_(x1, y1, x2, y2)⋅e_(vx1, vy1, vx2, vy2)
     A = (cos_α^2-1)*d(x1, y1, x2, y2)^2+l(l_a, l_b)^2
 
-    if A < 0.0 || -cos_α*d(x1, y1, x2, y2)-sqrt(A) < 0.0 || d(vx1, vy1, vx2, vy2) == 0.0
-        ttc_min = 99999.9
+    if A < 0.0 || -cos_α*d(x1, y1, x2, y2)-sqrt(A) < 0.0 || d(vx1, vy1, vx2, vy2) < 0.0
+        99999.9
     else
         (-cos_α*d(x1, y1, x2, y2)-sqrt(A))/d(vx1, vy1, vx2, vy2)
     end
@@ -33,7 +33,7 @@ function TTC(x1, x2, v1, v2, l_a = 0.3, l_b = 0.3)
 
     else
 
-        ttc_min = 99999.9
+        99999.9
 
     end
 

@@ -1,3 +1,17 @@
+function Moving_Average(x, k)
+
+    x_ma = fill(0.0, length(x)-2*k+1)
+
+    for i in k+1:length(x)-k
+
+        x_ma[i-k+1] = mean(x[i-k:i+k])
+
+    end
+
+    x_ma
+
+end
+
 function d(a::Vector, b::Vector, L)
 
     c = fill(0.0, length(a))

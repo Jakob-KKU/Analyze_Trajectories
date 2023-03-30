@@ -7,17 +7,21 @@ function Is_Pair(df1, df2, f_min, d_mean, d_max)
         df_i = filter(row -> f1 < row.Frame < f2, df1)
         df_j = filter(row -> f1 < row.Frame < f2, df2)
 
-        d_ij = [d((df_i.x[i], df_i.y[i]), (df_j.x[i], df_j.y[i])) for i in 1:length(df_i.x)]
+        #if length(df_i.x) != length(df_j.x)
+        #    println("Back and Forth movement out of Measurement area")
+        #    false
 
-        if maximum(d_ij) < d_max && mean(d_ij) < d_mean
+        #else
 
-            true
+            d_ij = [d((df_i.x[i], df_i.y[i]), (df_j.x[i], df_j.y[i])) for i in 1:length(df_i.x)]
 
-        else
+            if maximum(d_ij) < d_max && mean(d_ij) < d_mean
+                true
+            else
+                false
+            end
 
-            false
-
-        end
+        #end
 
     else
 

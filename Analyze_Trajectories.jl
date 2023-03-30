@@ -26,4 +26,21 @@ function Keep_only(Files, suff)
 
     Files_
 end
+
+function Open_Dir(dir, Path)
+
+    cd(Path)
+
+    if dir in readdir()
+
+        cd(dir)
+
+    else
+
+        println("Created Directory /", dir, ".")
+        mkdir(dir)
+        cd(dir)
+
+    end
+end
 ;

@@ -11,7 +11,12 @@ function Init_Velocities_FW!(df::DataFrame, Δt::Float64)
         df_i.v_x[1:end-1] = (df_i.x[2:end].-df_i.x[1:end-1])./((df_i.Frame[2:end].-df_i.Frame[1:end-1])*Δt)
         df_i.v_y[1:end-1] = (df_i.y[2:end].-df_i.y[1:end-1])./((df_i.Frame[2:end].-df_i.Frame[1:end-1])*Δt)
 
+        df_i.v_x[end] = df_i.v_x[end-1]
+        df_i.v_y[end] = df_i.v_y[end-1]
+
     end
+
+
 end
 
 function Init_Velocities!(df::DataFrame, k::Int, Δt::Float64, L)
@@ -155,6 +160,7 @@ function Init_TTC!(df::DataFrame,)
             df_f_ = df_f[df_f.ID .!= id, :]
 
             TTCs[j] = Min_TTC(df_f_i, df_f_)
+
             j += 1
 
         end
@@ -215,7 +221,9 @@ function Init_TG_TTC!(df::DataFrame, l)
 
             TGs[j] = Min_TG_vC(df_f_i, df_f_, l)
             TTCs[j] = Min_TTC(df_f_i, df_f_, l)
+
             j += 1
+
 
         end
 
