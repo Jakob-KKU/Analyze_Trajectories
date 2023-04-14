@@ -32,15 +32,15 @@ end
 
 function Init_Lane_Group!(df::DataFrame)
 
-    IDs = unique(df.ID)
     df[!, :LF_ID] .= 0
+    gdf_ID = groupby(df, :ID)
 
-    for (i, id) in enumerate(IDs)
+    for df_i in gdf_ID
 
-        if mean(df[(df.ID .== i), :].v_x) > 0.0
-            df[(df.ID .== id), :LF_ID] .= 1
+        if mean(df_i.v_x) > 0.0
+            df_i.LF_ID .= 1
         else
-            df[(df.ID .== id), :LF_ID] .= -1
+            df_i.LF_ID .= -1
         end
 
     end

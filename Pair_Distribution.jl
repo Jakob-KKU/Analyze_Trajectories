@@ -240,7 +240,7 @@ function Add_Obs!(obs, df_i, df_j, fi, fj, line)
     obs[line, 5:8] .= df_j.x[fj], df_j.y[fj], df_j.v_x[fj], df_j.v_y[fj]
     obs[line, 9] = d(df_i.x[fi], df_i.y[fi] , df_j.x[fj], df_j.y[fj])
 
-    obs[line, 10] = TTC(x_i, x_j, v_i, v_j, 0.2, 0.2)
+    obs[line, 10] = TTC(x_i, x_j, v_i, v_j, 0.3, 0.3)
     obs[line, 11] = Rate_Of_Approach(x_i, x_j, v_i, v_j)
     obs[line, 12] = ϕ(v_i, x_j .- x_i)
     obs[line, 13] = ϕ(v_j, x_i .- x_j)
