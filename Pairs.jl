@@ -8,8 +8,12 @@ function Is_Pair(df1, df2, f_min, d_mean, d_max)
         df_j = filter(row -> f1 < row.Frame < f2, df2)
 
         #if length(df_i.x) != length(df_j.x)
-        #    println("Back and Forth movement out of Measurement area")
-        #    false
+            #println("Back and Forth movement out of Measurement area")
+            #false
+
+        #if length(df_i.x) == 0 || length(df_j.x) == 0
+        #    println(f1 ," and ", f2)
+        #end
 
         #else
 
@@ -41,9 +45,11 @@ function Calc_Pair_IDs(df, f_min, d_mean, d_max)
 
         for j in i+1:length(gdf)
 
+            #println(i, " and ", j)
+
             if Is_Pair(gdf[i], gdf[j], f_min, d_mean, d_max) == true
-                push!(pair_ids, j)
-                push!(pair_ids, i)
+                push!(pair_ids, gdf[j].ID[1])
+                push!(pair_ids, gdf[i].ID[1])
 
             end
 

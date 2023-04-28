@@ -6,9 +6,10 @@ IN_MIN(df::SubDataFrame, r_min, r_soc, l_min) = mean(((r_soc - l_min)./(filter(r
 
 AV(ttc::Vector, T) = (T./ttc)#.^2# * exp.(-1 .* ttc./T)
 
-AV(ttc::Float64, T) = (T/ttc)^2# * exp(-1 * ttc/T)
+AV(ttc::Float64, T) = (T/ttc)#^2# * exp(-1 * ttc/T)
 
-AV_MIN(df::SubDataFrame, T, t_min, t_max) = mean(T./filter(row -> t_max > row.TTC > t_min, df).TTC)
+#AV_MIN(df::SubDataFrame, T, t_min, t_max) = mean(T./filter(row -> t_max > row.TTC > t_min, df).TTC)
+AV_MIN(df::SubDataFrame, T, t_min, t_max) = mean((T./filter(row -> row.TTC > t_min, df).TTC).^2)
 
 
 function Mean_AV_DataSet_MIN(df, T, t_min, t_max)

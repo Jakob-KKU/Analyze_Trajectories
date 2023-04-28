@@ -1,4 +1,4 @@
-using CSV, DataFrames, Statistics
+using CSV, DataFrames, Statistics, SpecialFunctions
 
 include("./Init_DataFrame.jl")
 include("./Intruder.jl")

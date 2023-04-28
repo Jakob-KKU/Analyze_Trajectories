@@ -39,6 +39,25 @@ function Calc_Dist(x, x_bins::Vector, dx)
 
 end
 
+function Calc_Dist_TGK(x, k, σ, dx=0.1)
+
+    x_min = minimum(x)-k*σ
+    x_max = maximum(x)+k*σ
+    x_values = collect(x_min:dx:x_max+dx)
+    p_x = fill(0.0, length(x_values))
+
+    for x_i in x
+
+        p_x += [kernel(x_i-x_values_i, k, σ) for x_values_i in x_values]
+
+    end
+
+    p_x*dx ./length(x), x_values
+
+end
+
+kernel(t, k, σ) = abs(t) > k*σ ? 0 : 1/(sqrt(2π)*σ*erf(k/sqrt(2)))*exp(-t^2/(2σ^2))
+
 function Calc_PD(x, x_scrambled ,x_bins::Vector, dx)
 
     x_min = minimum(x_bins)
@@ -80,6 +99,35 @@ function Calc_PD(x, x_scrambled ,x_bins::Vector, dx)
 
 
 end
+
+
+function Calc_PD_TGK(x, x_scrambled, x_bins::Vector, k, σ)
+
+    x_min = minimum(x_bins)
+    x_max = maximum(x_bins)
+
+
+    pd = fill(0.0, length(x_bins))
+    p_x = fill(0.0, length(x_bins))
+    p_xs = fill(0.0, length(x_bins))
+
+    for x_i in x
+
+        p_x += [kernel(x_i-x_values, k, σ) for x_values in x_bins]
+
+    end
+
+    for x_i in x_scrambled
+
+       p_xs += [kernel(x_i-x_values, k, σ) for x_values in x_bins]
+
+    end
+
+    (p_x./length(x)) ./ (p_xs./length(x_scrambled))
+
+end
+
+
 
 function Num_of_Mutual_Dist(gdf, Δf)
 
@@ -130,6 +178,7 @@ function Calc_DF_PairDist_PairsOnly(df, Δf, f_min, d_mean, d_max)
 
 
     pair_ids = Calc_Pair_IDs(df, f_min, d_mean, d_max)
+    println(length(pair_ids), " pairs detected!")
 
     gdf = groupby(df, :Frame)
     N_val = Num_of_Mutual_Dist(gdf, Δf)
@@ -167,6 +216,8 @@ function Calc_DF_PairDist_NoPairs(df, Δf, f_min, d_mean, d_max)
 
 
     pair_ids = Calc_Pair_IDs(df, f_min, d_mean, d_max)
+    println(length(pair_ids), " pairs detected!")
+
 
     gdf = groupby(df, :Frame)
     N_val = Num_of_Mutual_Dist(gdf, Δf)
@@ -240,7 +291,7 @@ function Add_Obs!(obs, df_i, df_j, fi, fj, line)
     obs[line, 5:8] .= df_j.x[fj], df_j.y[fj], df_j.v_x[fj], df_j.v_y[fj]
     obs[line, 9] = d(df_i.x[fi], df_i.y[fi] , df_j.x[fj], df_j.y[fj])
 
-    obs[line, 10] = TTC(x_i, x_j, v_i, v_j, 0.3, 0.3)
+    obs[line, 10] = TTC(x_i, x_j, v_i, v_j, 0.2, 0.2)
     obs[line, 11] = Rate_Of_Approach(x_i, x_j, v_i, v_j)
     obs[line, 12] = ϕ(v_i, x_j .- x_i)
     obs[line, 13] = ϕ(v_j, x_i .- x_j)

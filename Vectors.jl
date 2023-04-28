@@ -142,14 +142,6 @@ function Min_R_1D(df_i, df_f)
 
 end
 
-IN(r::Vector, r_soc, dia) = [IN(r_i, r_soc, dia) for r_i in r]
-
-IN(r::Float64, r_soc, dia) = (r_soc - dia)/(r-dia)
-
-AV(ttc::Vector, T) = T./ttc
-
-AV(ttc::Float64, T) = T/ttc
-
 function ρ_Global(df)
 
     A = (maximum(df.x)-minimum(df.x))*(maximum(df.y)-minimum(df.y))

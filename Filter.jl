@@ -21,20 +21,26 @@ function Apply_BW_Filter!(df, freq, fps, order)
 
     for (i, df_) in enumerate(gdf)
 
-        try
+        if length(df_.x) > 12
 
-            df_.x = filtfilt(digitalfilter(responsetype, designmethod), df_.x)
-            df_.y = filtfilt(digitalfilter(responsetype, designmethod), df_.y)
+            try
 
-        catch err
+                df_.x = filtfilt(digitalfilter(responsetype, designmethod), df_.x)
+                df_.y = filtfilt(digitalfilter(responsetype, designmethod), df_.y)
 
-            if isa(err, BoundsError)
+            catch err
 
-                df_.y = df_.y
-                df_.x = df_.y
+                if isa(err, BoundsError)
+
+                    df_.y = df_.y
+                    df_.x = df_.y
+                end
+
             end
 
         end
+
+
 
         #    if@warn "Not enought data points to apply filter! Used original data instead."
 

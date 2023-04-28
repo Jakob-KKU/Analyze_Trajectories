@@ -8,11 +8,15 @@ function Init_Velocities_FW!(df::DataFrame, Δt::Float64)
 
     for df_i in gdf
 
+        if length(df_i.x) > 2
+
         df_i.v_x[1:end-1] = (df_i.x[2:end].-df_i.x[1:end-1])./((df_i.Frame[2:end].-df_i.Frame[1:end-1])*Δt)
         df_i.v_y[1:end-1] = (df_i.y[2:end].-df_i.y[1:end-1])./((df_i.Frame[2:end].-df_i.Frame[1:end-1])*Δt)
 
         df_i.v_x[end] = df_i.v_x[end-1]
         df_i.v_y[end] = df_i.v_y[end-1]
+
+        end
 
     end
 
