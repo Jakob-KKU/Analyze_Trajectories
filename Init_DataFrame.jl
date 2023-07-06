@@ -53,27 +53,27 @@ end
 function Init_Velocities!(df::DataFrame, k::Int, Δt::Float64)
 
     n = nrow(df)
-    v_x = fill(0.0, n)
-    v_y = fill(0.0, n)
+    df[!, :v_x] = fill(0.0, n)
+    df[!, :v_y] = fill(0.0, n)
 
-    ids = unique(df[!, :ID])
-    index = 0
+    gdf = groupby(df, :ID)
 
+    for df_i in gdf
 
-    for i in ids
+        df_i.v_x[k+1:end-k] = (df_i.x[2*k+1:end].-df_i.x[1:end-2*k])./(2*k*Δt)
+        df_i.v_y[k+1:end-k] = (df_i.y[2*k+1:end].-df_i.y[1:end-2*k])./(2*k*Δt)
 
-        df_ = df[(df.ID .== i), :]
-        n_ = nrow(df_)
+        if k == 1
 
-        v_x[index+k+1:index+n_-k] = (df_[!, :x][2*k+1:end].-df_[!, :x][1:end-2*k])./(2*k*Δt)
-        v_y[index+k+1:index+n_-k] = (df_[!, :y][2*k+1:end].-df_[!, :y][1:end-2*k])./(2*k*Δt)
+            df_i.v_x[1] = df_i.v_x[2]
+            df_i.v_x[end] = df_i.v_x[end-1]
 
-        index += n_
+            df_i.v_y[1] = df_i.v_y[2]
+            df_i.v_y[end] = df_i.v_y[end-1]
+
+        end
 
     end
-
-    df[!, :v_x] = v_x
-    df[!, :v_y] = v_y;
 
 end
 
@@ -224,8 +224,8 @@ function Init_TG_TTC!(df::DataFrame, l)
             df_f_ = df_f[df_f.ID .!= id, :]
 
             TGs[j] = Min_TG_vC(df_f_i, df_f_, l)
-            TTCs[j] = Min_TTC(df_f_i, df_f_, l)
-
+            #TTCs[j] = Min_TTC(df_f_i, df_f_, l)
+            TTCs[j] = Min_TTC_VariableRadius(df_f_i, df_f_, 0.4)
             j += 1
 
 
@@ -287,7 +287,7 @@ function Init_TG_TTC_1D!(df::DataFrame, l)
             df_f_ = df_f[df_f.ID .!= id, :]
 
             TGs[j] = Min_TG_1D_vC(df_f_i, df_f_, l)
-            TTCs[j] = Min_TTC_1D(df_f_i, df_f_, l)
+            TTCs[j] = Min_TTC_1D_VariableRadius(df_f_i, df_f_, 0.4)
             j += 1
 
         end

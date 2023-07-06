@@ -212,12 +212,79 @@ function Calc_DF_PairDist_PairsOnly(df, Δf, f_min, d_mean, d_max)
 
 end
 
-function Calc_DF_PairDist_NoPairs(df, Δf, f_min, d_mean, d_max)
+function Calc_DF_PairDist_PairsOnly(df, Δf, pair_ids)
 
+    gdf = groupby(df, :Frame)
+    N_val = Num_of_Mutual_Dist(gdf, Δf)
+    obs = Matrix{Float64}(undef, N_val, 13)
+    line = 1
+
+    for df_f in gdf[1:Δf:end]
+
+        gdf_2 = groupby(df_f, :ID)
+
+        for (i, df_i) in enumerate(gdf_2)
+
+            if df_i.ID[1] ∈ pair_ids
+
+                for df_j in gdf_2[i+1:end]
+
+                    Add_Obs!(obs, df_i, df_j, 1, 1, line)
+                    line += 1
+
+                end
+            end
+        end
+
+    end
+
+    obs = obs[1:line, :]
+
+    DataFrame(x1 = obs[:, 1], y1 = obs[:, 2], v_x1 = obs[:, 3], v_y1 = obs[:, 4]
+                 , x2 = obs[:, 5], y2 = obs[:, 6], v_x2 = obs[:, 7], v_y2 = obs[:, 8]
+                 , r = obs[:, 9], ttc = obs[:, 10], roa = obs[:, 11], phi_1 = obs[:, 12], phi_2 = obs[:, 13])
+
+end
+
+function Calc_DF_PairDist_NoPairs(df, Δf, f_min, d_mean, d_max)
 
     pair_ids = Calc_Pair_IDs(df, f_min, d_mean, d_max)
     println(length(pair_ids), " pairs detected!")
 
+
+    gdf = groupby(df, :Frame)
+    N_val = Num_of_Mutual_Dist(gdf, Δf)
+    obs = Matrix{Float64}(undef, N_val, 13)
+    line = 1
+
+    for df_f in gdf[1:Δf:end]
+
+        gdf_2 = groupby(df_f, :ID)
+
+        for (i, df_i) in enumerate(gdf_2)
+
+            if df_i.ID[1] ∉ pair_ids
+
+                for df_j in gdf_2[i+1:end]
+
+                    Add_Obs!(obs, df_i, df_j, 1, 1, line)
+                    line += 1
+
+                end
+            end
+        end
+
+    end
+
+    obs = obs[1:line, :]
+
+    DataFrame(x1 = obs[:, 1], y1 = obs[:, 2], v_x1 = obs[:, 3], v_y1 = obs[:, 4]
+                 , x2 = obs[:, 5], y2 = obs[:, 6], v_x2 = obs[:, 7], v_y2 = obs[:, 8]
+                 , r = obs[:, 9], ttc = obs[:, 10], roa = obs[:, 11], phi_1 = obs[:, 12], phi_2 = obs[:, 13])
+
+end
+
+function Calc_DF_PairDist_NoPairs(df, Δf, pair_ids)
 
     gdf = groupby(df, :Frame)
     N_val = Num_of_Mutual_Dist(gdf, Δf)
@@ -291,7 +358,7 @@ function Add_Obs!(obs, df_i, df_j, fi, fj, line)
     obs[line, 5:8] .= df_j.x[fj], df_j.y[fj], df_j.v_x[fj], df_j.v_y[fj]
     obs[line, 9] = d(df_i.x[fi], df_i.y[fi] , df_j.x[fj], df_j.y[fj])
 
-    obs[line, 10] = TTC(x_i, x_j, v_i, v_j, 0.2, 0.2)
+    obs[line, 10] = obs[line, 9] < 0.2 ? 0.0 : TTC(x_i, x_j, v_i, v_j, 0.2, 0.2)
     obs[line, 11] = Rate_Of_Approach(x_i, x_j, v_i, v_j)
     obs[line, 12] = ϕ(v_i, x_j .- x_i)
     obs[line, 13] = ϕ(v_j, x_i .- x_j)
