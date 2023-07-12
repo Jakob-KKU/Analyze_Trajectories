@@ -39,11 +39,11 @@ function AV_MIN(df::SubDataFrame, T, t_min, t_max, l_min)
 
     for i in 1:length(df.TTC)
 
-        if t_min < df.TTC[i] < t_max || df.r[i] < 3*0.8
+        if t_min < df.TTC[i] < t_max #|| df.r[i] < 3*0.8
             av_ += AV(df.TTC[i], T)
             ct += 1
 
-        elseif df.TTC[i] <= t_min #|| df.r[i] < l_min
+        elseif df.TTC[i] <= t_min || df.r[i] < l_min
             av_ += AV(t_min, T)
             ct += 1
         end

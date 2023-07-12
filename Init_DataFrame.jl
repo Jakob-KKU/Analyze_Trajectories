@@ -224,8 +224,9 @@ function Init_TG_TTC!(df::DataFrame, l)
             df_f_ = df_f[df_f.ID .!= id, :]
 
             TGs[j] = Min_TG_vC(df_f_i, df_f_, l)
-            #TTCs[j] = Min_TTC(df_f_i, df_f_, l)
-            TTCs[j] = Min_TTC_VariableRadius(df_f_i, df_f_, 0.4)
+            TTCs[j] = Min_TTC(df_f_i, df_f_, l)
+            #R_soc = 0.2
+            #TTCs[j] = Min_TTC_VariableRadius(df_f_i, df_f_, R_soc)
             j += 1
 
 
@@ -287,7 +288,10 @@ function Init_TG_TTC_1D!(df::DataFrame, l)
             df_f_ = df_f[df_f.ID .!= id, :]
 
             TGs[j] = Min_TG_1D_vC(df_f_i, df_f_, l)
-            TTCs[j] = Min_TTC_1D_VariableRadius(df_f_i, df_f_, 0.4)
+            TTCs[j] = Min_TTC_1D(df_f_i, df_f_, l)
+
+            #R_soc = 0.25
+            #TTCs[j] = Min_TTC_1D_VariableRadius(df_f_i, df_f_, R_soc)
             j += 1
 
         end
