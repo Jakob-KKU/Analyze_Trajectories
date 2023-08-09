@@ -26,9 +26,9 @@ function IN_MIN(df::SubDataFrame, r_min, r_soc, l_min)
 
 end
 
-AV(ttc::Vector, T) = (T./ttc)#.^4 #* exp.(-1 .* ttc./T)
+AV(ttc::Vector, T) = (T./ttc).^2 #* exp.(-1 .* ttc./T)
 
-AV(ttc::Float64, T) = (T/ttc)#^4 #* exp(-1 * ttc/T)
+AV(ttc::Float64, T) = (T/ttc)^2 #* exp(-1 * ttc/T)
 
 #AV_MIN(df::SubDataFrame, T, t_min, t_max) = mean(T./filter(row -> t_max > row.TTC > t_min, df).TTC)
 
@@ -195,7 +195,7 @@ function Calc_IN_AV(path, Files, r_min, t_min, t_max, r_soc, l_min, T)
         df = DataFrame(data)
 
         IN_[i] = Mean_IN_DataSet_SUM(df, r_min, r_soc, l_min)
-        AV_[i] = Mean_AV_DataSet_MIN(df, T, t_min, t_max, l_min)
+        AV_[i] = Mean_AV_DataSet_SUM(df, T, t_min, t_max, l_min)
         rho_[i] = ρ_Global(df)
 
     end
@@ -227,7 +227,7 @@ function Calc_IN_AV_NEGLECT_PAIRS(path, Files, r_min, t_min, t_max, r_soc, l_min
 
         #calculate the average values averaged over the frames
         IN_[i] = Mean_IN_DataSet_SUM(df, r_min, r_soc, l_min)
-        AV_[i] = Mean_AV_DataSet_MIN(df, T, t_min, t_max, l_min)
+        AV_[i] = Mean_AV_DataSet_SUM(df, T, t_min, t_max, l_min)
         rho_[i] = ρ_Global(df)
 
     end
@@ -255,7 +255,7 @@ function Calc_IN_AV_1D(path, Files, r_min, t_min, t_max, r_soc, l_min, T)
 
         #calculate the average values averaged over the frames
         IN_[i] = Mean_IN_DataSet_SUM(df, r_min, r_soc, l_min)
-        AV_[i] = Mean_AV_DataSet_MIN(df, T, t_min, t_max, l_min)
+        AV_[i] = Mean_AV_DataSet_SUM(df, T, t_min, t_max, l_min)
         rho_[i] = ρ_Global(df)
 
     end

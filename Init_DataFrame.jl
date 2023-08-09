@@ -347,3 +347,19 @@ function Init_Min_R_F!(df::DataFrame, ϕ_)
     end
 
 end
+
+#Change Frame of reference to position of ID
+function Change_Reference_Frame_to_ID!(df::DataFrame, ID)
+
+    gdf = groupby(df, :Frame)
+
+    for df_f in gdf
+
+        df_ID = filter(row -> row.ID == ID, df_f)
+
+        df_f.x .= df_f.x .- df_ID.x
+        df_f.y .= df_f.y .- df_ID.y
+
+    end
+
+end;
