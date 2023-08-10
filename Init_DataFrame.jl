@@ -114,8 +114,20 @@ function Init_Vornoi_Area!(df, L)
         df_[!, :A] = voronoiarea(tess)
 
     end
+end
 
-    gdf
+function Init_Vornoi_Density!(df, L)
+
+    gdf = groupby(df, :Frame)
+    rect = Rectangle(Point2(0.0, 0.0), Point2(L))
+
+    for df_ in gdf
+
+        points = [Point2(df_.x[i], df_.y[i]) for i in 1:nrow(df_)];
+        tess = voronoicells(points, rect);
+        df_[!, :ρ] = 1 ./voronoiarea(tess)
+
+    end
 end
 
 
