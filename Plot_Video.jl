@@ -83,3 +83,51 @@ function Plot_Agents!(df, IDs, size, color, size_2, color_2, dist)
     end
 
 end
+
+function Plot_Agents_TTC!(df::SubDataFrame, size)
+
+
+
+    GR.setmarkertype(GR.MARKERTYPE_SOLID_CIRCLE)
+    GR.setmarkersize(size)
+
+    gdf = groupby(df, :ID)
+
+
+    for df_i in gdf
+
+        red = max(min(1.0, 1.0 - df_i.TTC[1]/10), 0.0)
+        GR.setcolorrep(1, red, 0.1, 0.1)
+        GR.setmarkercolorind(1)
+        GR.polymarker(df_i.x, df_i.y)
+
+    end
+
+end
+
+function Plot_Agents_TTC!(df, size, size_2, color_2, dist)
+
+    GR.setmarkertype(GR.MARKERTYPE_SOLID_CIRCLE)
+    GR.setmarkersize(size)
+
+    gdf = groupby(df, :ID)
+
+    for df_i in gdf
+
+        red = max(min(1.0, 1.0 - df_i.TTC[1]/10), 0.0)
+        GR.setcolorrep(1, red, 0.1, 0.1)
+        GR.setmarkercolorind(1)
+        GR.polymarker(df_i.x, df_i.y)
+
+    end
+
+    GR.setmarkertype(GR.MARKERTYPE_SOLID_CIRCLE)
+    GR.setmarkersize(size_2)
+    GR.setmarkercolorind(color_2)
+
+    e_x = df.v_x ./ sqrt.(df.v_x .^2 .+ df.v_y .^2)
+    e_y = df.v_y ./ sqrt.(df.v_x .^2 .+ df.v_y .^2)
+
+    GR.polymarker(df.x .+ dist .* e_x, df.y .+ dist .* e_y)
+
+end

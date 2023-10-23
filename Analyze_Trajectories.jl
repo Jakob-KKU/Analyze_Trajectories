@@ -12,6 +12,7 @@ include("./Dimless_Numbers.jl")
 include("./Pairs.jl")
 include("./Filter.jl")
 include("./Velocity_Field.jl")
+include("./Correlations.jl")
 
 
 function Keep_only(Files, suff)

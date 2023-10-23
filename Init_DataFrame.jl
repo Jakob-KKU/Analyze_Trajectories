@@ -219,7 +219,7 @@ end
 function Init_TG_TTC!(df::DataFrame, l)
     #Init columns
     df[!, :TTC] = fill(0.0, nrow(df))
-    df[!, :TG] = fill(0.0, nrow(df))
+    #df[!, :TG] = fill(0.0, nrow(df))
 
     #group by frames
     gdf = groupby(df, :Frame)
@@ -235,7 +235,7 @@ function Init_TG_TTC!(df::DataFrame, l)
             df_f_i = df_f[df_f.ID .== id, :]
             df_f_ = df_f[df_f.ID .!= id, :]
 
-            TGs[j] = Min_TG_vC(df_f_i, df_f_, l)
+            #TGs[j] = Min_TG(df_f_i, df_f_, l)
             TTCs[j] = Min_TTC(df_f_i, df_f_, l)
             #R_soc = 0.2
             #TTCs[j] = Min_TTC_VariableRadius(df_f_i, df_f_, R_soc)
@@ -244,7 +244,7 @@ function Init_TG_TTC!(df::DataFrame, l)
 
         end
 
-        df_f.TG = TGs
+        #df_f.TG = TGs
         df_f.TTC = TTCs
 
     end
@@ -299,7 +299,7 @@ function Init_TG_TTC_1D!(df::DataFrame, l)
             df_f_i = df_f[df_f.ID .== id, :]
             df_f_ = df_f[df_f.ID .!= id, :]
 
-            TGs[j] = Min_TG_1D_vC(df_f_i, df_f_, l)
+            TGs[j] = Min_TG_1D(df_f_i, df_f_, l)
             TTCs[j] = Min_TTC_1D(df_f_i, df_f_, l)
 
             #R_soc = 0.25
@@ -374,4 +374,48 @@ function Change_Reference_Frame_to_ID!(df::DataFrame, ID)
 
     end
 
-end;
+end
+
+function Init_AV_min!(df::DataFrame, τ_0)
+
+    df[!, :AV] = τ_0 ./ df.TTC
+
+end
+
+function Init_IN_min!(df::DataFrame, r_soc, l_min)
+
+    df[!, :IN] = ((r_soc - l_min)./(df.r .- l_min)).^2
+
+end
+
+function Init_Level_of_Pushing!(df, df_pushing, Δf_pushing = 25)
+
+    df[!, :LoP] = fill(0, nrow(df));
+    gdf = groupby(df, :ID)
+    gdf_Pushing = groupby(df_pushing, :ID)
+
+    for i in 1:length(gdf)
+
+        df_i = gdf[i]
+        df_i_pushing = gdf_Pushing[i]
+
+        gdf_i_f = groupby(df_i, :Frame)
+
+        for df_f in gdf_i_f
+
+            lop_ = filter(row -> row.Frame == Int(round(df_f.Frame[1]/Δf_pushing)-1)*Δf_pushing,df_i_pushing).LoP
+
+            #some annotations are missing the last ~1s
+            if length(lop_) >= 1
+                df_f.LoP[1] = lop_[1]
+            end
+
+
+        end
+
+    end
+
+end
+
+
+;

@@ -39,6 +39,37 @@ function Calc_Dist(x, x_bins::Vector, dx)
 
 end
 
+function Calc_Dist(x, x_bins::Vector)
+
+    x_min = minimum(x_bins)
+    x_max = maximum(x_bins)
+
+    ct = 0
+
+
+    p_x = fill(0.0, length(x_bins))
+
+    for x_i in x
+
+        if x_min < x_i < x_max
+
+            for i in 1:length(x_bins)-1
+
+                if x_bins[i+1] > x_i > x_bins[i]
+                    p_x[i] += 1
+                    ct += 1
+                end
+
+            end
+
+        end
+
+    end
+
+    p_x ./ct
+
+end
+
 function Calc_Dist_TGK(x, k, σ, dx=0.1)
 
     x_min = minimum(x)-k*σ

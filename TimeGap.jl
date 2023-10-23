@@ -67,6 +67,21 @@ function Min_TG_1D(df_i, df_f)
 
 end
 
+function Min_TG_1D(df_i, df_f, l)
+
+    x_i = df_i.x[1]
+    v_i =  df_i.v_x[1]
+
+    TG_min = 999.9
+
+    for row in eachrow(df_f)
+        TG_min = min(TG_min, TimeGap(x_i, row.x,  v_i, l, l))
+    end
+
+    TG_min
+
+end
+
 function Min_TG_1D_vC(df_i, df_f, l)
 
     x_i = df_i.x[1]
