@@ -45,4 +45,6 @@ function Open_Dir(dir, Path)
 
     end
 end
+
+Create_LaTeXString(x) = [latexstring(x_i) for x_i in x]
 ;
