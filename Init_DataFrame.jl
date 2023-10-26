@@ -417,5 +417,17 @@ function Init_Level_of_Pushing!(df, df_pushing, Δf_pushing = 25)
 
 end
 
+function Init_Angular_Momentum!(df)
+
+    df[!, :L] = fill(0.0, nrow(df))
+
+    for row in eachrow(df)
+
+        row.L = (row.v_x*row.y - row.v_y*row.x)/sqrt(row.x^2+row.y^2)
+
+    end
+
+end
+
 
 ;

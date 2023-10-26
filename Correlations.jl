@@ -100,7 +100,6 @@ function Autocorrelation(df::SubDataFrame, x::Symbol, τ, Δt)
     Δf = Int(round(τ/Δt))
 
     x_s = df[!,x]
-
     x_mean = mean(x_s)
 
     for i in 1:nrow(df)-Δf
