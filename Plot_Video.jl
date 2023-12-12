@@ -24,6 +24,15 @@ function Plot_Agents!(df::DataFrame, size, color)
 
 end
 
+function Plot_Agents!(df::SubDataFrame, size, color)
+
+    GR.setmarkertype(GR.MARKERTYPE_SOLID_CIRCLE)
+    GR.setmarkersize(size)
+    GR.setmarkercolorind(color)
+    GR.polymarker(df.x, df.y)
+
+end
+
 function Plot_Agents!(df::DataFrame, IDs, size, color)
 
     GR.setmarkertype(GR.MARKERTYPE_SOLID_CIRCLE)
