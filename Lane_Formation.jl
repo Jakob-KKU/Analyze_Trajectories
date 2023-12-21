@@ -12,16 +12,18 @@ function Travel_Velocities(Files, path, x_min, x_max, Δt, N, k, L)
         rename!(df, 1 => "ID", 2 => "Frame", 3 => "x", 4 => "y");
 
         #Initialize the velocities
-        Init_Velocities!(df, k , Δt, L);
+        Init_Velocities!(df, k, Δt);
 
         #Filter to measurement Area
-        df = df[(x_min .≤ df.x .≤ x_max), :];
+        filter!(row -> x_min < row.x < x_max, df)
 
-        for i in 1:N
+        gdf = groupby(df, :ID)
+        i=1
 
-            x_pos = df[(df.ID .== i), :].x
+        for df_i in gdf
 
-            v[j, i] = (maximum(x_pos)-minimum(x_pos))/(length(x_pos)*Δt)
+            v[j, i] = (x_max-x_min)/(nrow(df_i)*Δt)
+            i+=1
 
         end
 
@@ -29,6 +31,7 @@ function Travel_Velocities(Files, path, x_min, x_max, Δt, N, k, L)
 
     v
 end
+
 
 function Init_Lane_Group!(df::DataFrame)
 

@@ -118,6 +118,9 @@ end
 
 function Init_Vornoi_Density!(df, L)
 
+    n = nrow(df)
+    df[!, :ρ] = fill(0.0, n)
+
     gdf = groupby(df, :Frame)
     rect = Rectangle(Point2(0.0, 0.0), Point2(L))
 
@@ -125,7 +128,7 @@ function Init_Vornoi_Density!(df, L)
 
         points = [Point2(df_.x[i], df_.y[i]) for i in 1:nrow(df_)];
         tess = voronoicells(points, rect);
-        df_[!, :ρ] = 1 ./voronoiarea(tess)
+        df_.ρ = 1 ./voronoiarea(tess)
 
     end
 end
